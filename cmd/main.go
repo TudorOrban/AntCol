@@ -37,7 +37,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	game := &Game{
-		world: world.NewWorld(screenWidth, screenHeight),
+		world: world.GenerateWorld(screenWidth, screenHeight),
 	}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)

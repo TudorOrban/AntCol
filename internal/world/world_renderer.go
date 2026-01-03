@@ -2,24 +2,24 @@ package world
 
 import (
 	"ant-sim/internal/ant"
+	"ant-sim/internal/shared"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Drawing
 func (w *World) Draw(screen *ebiten.Image) {
-	w.DrawPheromones(screen)
+	w.drawPheromones(screen)
 
 	for _, foodSource := range w.FoodSources {
-		w.DrawFoodSource(screen, foodSource)
+		w.drawFoodSource(screen, foodSource)
 	}
 
 	for _, ant := range w.Ants {
-		w.DrawAnt(screen, ant)
+		w.drawAnt(screen, ant)
 	}
 }
 
-func (w *World) DrawAnt(screen *ebiten.Image, ant ant.Ant) {
+func (w *World) drawAnt(screen *ebiten.Image, ant ant.Ant) {
 	opts := &ebiten.DrawImageOptions{}
 
 	opts.GeoM.Translate(-AntLength/2, -AntWidth/2)
@@ -31,7 +31,7 @@ func (w *World) DrawAnt(screen *ebiten.Image, ant ant.Ant) {
 	screen.DrawImage(w.AntImage, opts)
 }
 
-func (w *World) DrawFoodSource(screen *ebiten.Image, foodSource FoodSource) {
+func (w *World) drawFoodSource(screen *ebiten.Image, foodSource shared.FoodSource) {
 	opts := &ebiten.DrawImageOptions{}
 
 	opts.GeoM.Translate(-MaxFoodSourceRadius/2, -MaxFoodSourceRadius/2)
@@ -41,7 +41,7 @@ func (w *World) DrawFoodSource(screen *ebiten.Image, foodSource FoodSource) {
 	screen.DrawImage(w.FoodSourceImage, opts)
 }
 
-func (w *World) DrawPheromones(screen *ebiten.Image) {
+func (w *World) drawPheromones(screen *ebiten.Image) {
 	for i := 0; i < len(w.HomePheromones); i++ {
 		pixIdx := i * 4
 		home := w.HomePheromones[i]

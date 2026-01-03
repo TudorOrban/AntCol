@@ -11,8 +11,7 @@ import (
 	"ant-sim/internal/shared"
 )
 
-// Initialization
-func NewWorld(w, h int) *World {
+func GenerateWorld(w, h int) *World {
 	homePosition := shared.Position{X: 100, Y: 100}
 	ants := GenerateAnts(w, h)
 	foodSources := GenerateFoodSources(w, h)
@@ -60,15 +59,15 @@ func GenerateAnts(w, h int) []ant.Ant {
 	return ants
 }
 
-func GenerateFoodSources(w, h int) []FoodSource {
-	foodSources := []FoodSource{}
+func GenerateFoodSources(w, h int) []shared.FoodSource {
+	foodSources := []shared.FoodSource{}
 
 	for _ = range NumberOfFoodSources {
 		posX := rand.Float64() * float64(w)
 		posY := rand.Float64() * float64(h)
 		radius := rand.Float64() * MaxFoodSourceRadius
 
-		foodSource := FoodSource{
+		foodSource := shared.FoodSource{
 			Position: shared.Position{
 				X: posX,
 				Y: posY,

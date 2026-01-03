@@ -23,16 +23,11 @@ type World struct {
 	HomePheromones []float64
 	FoodPheromones []float64
 	Ants           []ant.Ant
-	FoodSources    []FoodSource
+	FoodSources    []shared.FoodSource
 
 	AntImage        *ebiten.Image
 	FoodSourceImage *ebiten.Image
 	PheromoneImage  *ebiten.Image
 	PixelBuffer     []byte
 	mu              sync.RWMutex
-}
-
-type FoodSource struct {
-	Position shared.Position
-	Radius   float64
 }
