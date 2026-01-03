@@ -1,6 +1,7 @@
-package main
+package ant
 
 import (
+	"ant-sim/internal/shared"
 	"math"
 	"math/rand"
 )
@@ -28,12 +29,8 @@ func (as AntState) String() string {
 	return stateName[as]
 }
 
-type Position struct {
-	x, y float64
-}
-
 type Ant struct {
-	Position     Position
+	Position     shared.Position
 	AngleRadians float64
 	State        AntState
 }
@@ -43,16 +40,16 @@ func (a *Ant) Move(worldWidth, worldHeight float64) {
 		a.AngleRadians += (float64)(rand.Float32()-0.5) * 0.2
 	}
 
-	a.Position.x += math.Cos(a.AngleRadians) * AntSpeed
-	a.Position.y += math.Sin(a.AngleRadians) * AntSpeed
+	a.Position.X += math.Cos(a.AngleRadians) * AntSpeed
+	a.Position.Y += math.Sin(a.AngleRadians) * AntSpeed
 
 	// Check screen boundaries
-	if a.Position.x < 0 || a.Position.x >= worldWidth {
+	if a.Position.X < 0 || a.Position.X >= worldWidth {
 		a.AngleRadians = math.Pi - a.AngleRadians
-		a.Position.x = math.Max(0, math.Min(a.Position.x, worldWidth-1))
+		a.Position.X = math.Max(0, math.Min(a.Position.X, worldWidth-1))
 	}
-	if a.Position.y < 0 || a.Position.y >= worldHeight {
+	if a.Position.Y < 0 || a.Position.Y >= worldHeight {
 		a.AngleRadians = -a.AngleRadians
-		a.Position.y = math.Max(0, math.Min(a.Position.y, worldHeight-1))
+		a.Position.Y = math.Max(0, math.Min(a.Position.Y, worldHeight-1))
 	}
 }

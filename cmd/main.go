@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ant-sim/internal/world"
 	"image/color"
 	"log"
 
@@ -13,7 +14,7 @@ const (
 )
 
 type Game struct {
-	world *World
+	world *world.World
 }
 
 func (g *Game) Update() error {
@@ -36,7 +37,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	game := &Game{
-		world: NewWorld(screenWidth, screenHeight),
+		world: world.NewWorld(screenWidth, screenHeight),
 	}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
