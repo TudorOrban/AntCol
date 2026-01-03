@@ -8,6 +8,7 @@ import (
 )
 
 func (w *World) Draw(screen *ebiten.Image) {
+	w.drawHome(screen, w.HomePosition)
 	w.drawPheromones(screen)
 
 	for _, foodSource := range w.FoodSources {
@@ -17,6 +18,16 @@ func (w *World) Draw(screen *ebiten.Image) {
 	for _, ant := range w.Ants {
 		w.drawAnt(screen, ant)
 	}
+}
+
+func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
+	opts := &ebiten.DrawImageOptions{}
+
+	opts.GeoM.Translate(-HomeRadius/2, -HomeRadius/2)
+
+	opts.GeoM.Translate(homePosition.X, homePosition.Y)
+
+	screen.DrawImage(w.HomeImage, opts)
 }
 
 func (w *World) drawAnt(screen *ebiten.Image, ant ant.Ant) {

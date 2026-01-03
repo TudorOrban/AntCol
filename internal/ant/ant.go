@@ -15,7 +15,7 @@ const (
 )
 
 const (
-	AntSpeed     = 1
+	AntSpeed     = 2
 	AntTurnSpeed = 0.2
 	SensorAngle  = 0.4
 	SensorDist   = 15
@@ -62,17 +62,13 @@ func (a *Ant) ApplySteering(worldWidth, worldHeight int, pheromones []float64) {
 	vR := a.sense(worldWidth, worldHeight, pheromones, -SensorAngle, SensorDist)
 
 	if vF > vL && vF > vR {
-		// Keep going straight
-	} else if vF < vL && vF < vR {
-		if rand.Float32() < 0.5 {
-			a.AngleRadians += AntTurnSpeed
-		} else {
-			a.AngleRadians -= AntTurnSpeed
-		}
+		// Path is strongest ahead, do nothing
 	} else if vL > vR {
 		a.AngleRadians += AntTurnSpeed
 	} else if vR > vL {
 		a.AngleRadians -= AntTurnSpeed
+	} else if vF < 0 {
+		a.AngleRadians += math.Pi
 	}
 }
 
@@ -80,7 +76,7 @@ func (a *Ant) sense(
 	worldWidth, worldHeight int,
 	pheromones []float64,
 	sensorAngle float64, sensorDist float64,
-) float32 {
+) float64 {
 	angle := a.AngleRadians + sensorAngle
 	sensorX := a.Position.X + math.Cos(angle)*sensorDist
 	sensorY := a.Position.Y + math.Sin(angle)*sensorDist
@@ -89,7 +85,27 @@ func (a *Ant) sense(
 
 	if x >= 0 && x < worldWidth && y >= 0 && y < worldHeight {
 		index := getPheromoneIndex(worldWidth, shared.Position{X: sensorX, Y: sensorY})
-		return float32(pheromones[index])
+		return pheromones[index]
 	}
 	return -1
+}
+
+func (a *Ant) IsAtFoodSource(foodSources []shared.FoodSource) bool {
+	for _, foodSource := range foodSources {
+		dx := a.Position.X - foodSource.Position.X
+		dy := a.Position.Y - foodSource.Position.Y
+		distSq := dx*dx + dy*dy
+
+		if distSq < foodSource.Radius*foodSource.Radius {
+			return true
+		}
+	}
+	return false
+}
+
+func (a *Ant) IsAtHome(homePosition shared.Position, homeRadius float64) bool {
+	dx := a.Position.X - homePosition.X
+	dy := a.Position.Y - homePosition.Y
+	distSq := dx*dx + dy*dy
+	return distSq < homeRadius*homeRadius
 }
