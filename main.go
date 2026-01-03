@@ -1,10 +1,10 @@
 package main
 
 import (
+	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -25,7 +25,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "Ant Colony Sim: Initialized")
+	screen.Fill(color.RGBA{200, 200, 200, 255})
+
+	g.world.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -36,6 +38,7 @@ func main() {
 	game := &Game{
 		world: NewWorld(screenWidth, screenHeight),
 	}
+
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Ant Colony Simulation")
