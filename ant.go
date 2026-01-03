@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"math"
+	"math/rand"
+)
 
 type AntState int
 
@@ -11,7 +14,7 @@ const (
 )
 
 const (
-	AntSpeed     = 0.25
+	AntSpeed     = 1
 	AntTurnSpeed = 0.1
 )
 
@@ -35,9 +38,21 @@ type Ant struct {
 	State        AntState
 }
 
-func (a *Ant) Move() {
-	newX := a.Position.x + math.Cos(a.AngleRadians)*AntSpeed
-	newY := a.Position.y + math.Sin(a.AngleRadians)*AntSpeed
+func (a *Ant) Move(worldWidth, worldHeight float64) {
+	if rand.Float32() < 0.1 {
+		a.AngleRadians += (float64)(rand.Float32()-0.5) * 0.2
+	}
 
-	a.Position = Position{newX, newY}
+	a.Position.x += math.Cos(a.AngleRadians) * AntSpeed
+	a.Position.y += math.Sin(a.AngleRadians) * AntSpeed
+
+	// Check screen boundaries
+	if a.Position.x < 0 || a.Position.x >= worldWidth {
+		a.AngleRadians = math.Pi - a.AngleRadians
+		a.Position.x = math.Max(0, math.Min(a.Position.x, worldWidth-1))
+	}
+	if a.Position.y < 0 || a.Position.y >= worldHeight {
+		a.AngleRadians = -a.AngleRadians
+		a.Position.y = math.Max(0, math.Min(a.Position.y, worldHeight-1))
+	}
 }

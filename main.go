@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	screenWidth  = 800
-	screenHeight = 600
+	screenWidth  = 1800
+	screenHeight = 1200
 )
 
 type Game struct {
@@ -38,7 +38,6 @@ func main() {
 	game := &Game{
 		world: NewWorld(screenWidth, screenHeight),
 	}
-
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Ant Colony Simulation")
