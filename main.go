@@ -12,15 +12,15 @@ const (
 	screenHeight = 600
 )
 
-type World struct {
-	width, height int
-}
-
 type Game struct {
 	world *World
 }
 
 func (g *Game) Update() error {
+	g.world.UpdateEnvironment()
+
+	g.world.UpdateAnts()
+
 	return nil
 }
 
@@ -34,10 +34,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	game := &Game{
-		world: &World{
-			width:  screenWidth,
-			height: screenHeight,
-		},
+		world: NewWorld(screenWidth, screenHeight),
 	}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
