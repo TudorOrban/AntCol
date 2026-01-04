@@ -12,34 +12,38 @@ import (
 )
 
 func GenerateWorld(w, h int) *World {
-	homePosition := shared.Position{X: 800, Y: float64(h / 2)}
+	gw, gh := w/shared.GridScale, h/shared.GridScale
+
+	homePosition := shared.Position{X: float64(w / 2), Y: float64(h / 2)}
 	ants := GenerateAnts(w, h, homePosition)
-	foodSources := GenerateFoodSources(w, h)
+	foodSources := GenerateFoodSources(w, h, homePosition)
 
 	antImage := ebiten.NewImage(AntLength, AntWidth)
 	antImage.Fill(color.Black)
 
-	foodSourceImage := ebiten.NewImage(MaxFoodSourceRadius, MaxFoodSourceRadius)
-	foodSourceImage.Fill(color.RGBA{0, 255, 0, 0})
+	foodSourceImage := ebiten.NewImage(MaxFoodSourceRadius*2, MaxFoodSourceRadius*2)
+	foodSourceImage.Fill(color.RGBA{230, 10, 15, 230})
 
-	homeImage := ebiten.NewImage(HomeRadius, HomeRadius)
-	homeImage.Fill(color.RGBA{0, 255, 255, 0})
+	homeImage := ebiten.NewImage(HomeRadius*2, HomeRadius*2)
+	homeImage.Fill(color.RGBA{20, 10, 240, 230})
 
 	return &World{
 		Width:           w,
 		Height:          h,
+		GridWidth:       gw,
+		GridHeight:      gh,
 		HomePosition:    homePosition,
 		Ants:            ants,
 		FoodSources:     foodSources,
-		HomePheromones:  make([]float64, w*h),
-		FoodPheromones:  make([]float64, w*h),
-		HomeTemp:        make([]float64, w*h),
-		FoodTemp:        make([]float64, w*h),
+		HomePheromones:  make([]float64, gw*gh),
+		FoodPheromones:  make([]float64, gw*gh),
+		HomeTemp:        make([]float64, gw*gh),
+		FoodTemp:        make([]float64, gw*gh),
 		HomeImage:       homeImage,
 		AntImage:        antImage,
 		FoodSourceImage: foodSourceImage,
-		PheromoneImage:  ebiten.NewImage(w, h),
-		PixelBuffer:     make([]byte, w*h*4),
+		PheromoneImage:  ebiten.NewImage(gw, gh),
+		PixelBuffer:     make([]byte, gw*gh*4),
 		FoodCollected:   0,
 		TotalTicks:      0,
 	}
@@ -68,13 +72,21 @@ func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {
 	return ants
 }
 
-func GenerateFoodSources(w, h int) []shared.FoodSource {
+func GenerateFoodSources(w, h int, homePosition shared.Position) []shared.FoodSource {
 	foodSources := []shared.FoodSource{}
 
 	for _ = range NumberOfFoodSources {
-		posX := rand.Float64() * float64(w)
-		posY := rand.Float64() * float64(h)
-		radius := MaxFoodSourceRadius
+		radius := rand.Float64() * MaxFoodSourceRadius
+
+		posX, posY, distanceToHome := 0.0, 0.0, 0.0
+		minDistanceToHome := 300.0
+
+		for distanceToHome < minDistanceToHome {
+			posX = rand.Float64() * float64(w)
+			posY = rand.Float64() * float64(h)
+
+			distanceToHome = shared.GetDistance(homePosition, shared.Position{X: posX, Y: posY})
+		}
 
 		foodSource := shared.FoodSource{
 			Position: shared.Position{

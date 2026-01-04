@@ -63,10 +63,10 @@ func (a *Ant) Move(worldWidth, worldHeight float64) {
 	a.Scent *= ScentDecay
 }
 
-func (a *Ant) ApplySteering(worldWidth, worldHeight int, pheromones []float64) {
-	vF := a.sense(worldWidth, worldHeight, pheromones, 0, SensorDist)
-	vL := a.sense(worldWidth, worldHeight, pheromones, SensorAngle, SensorDist)
-	vR := a.sense(worldWidth, worldHeight, pheromones, -SensorAngle, SensorDist)
+func (a *Ant) ApplySteering(gridWidth, gridHeight int, pheromones []float64) {
+	vF := a.sense(gridWidth, gridHeight, pheromones, 0, SensorDist)
+	vL := a.sense(gridWidth, gridHeight, pheromones, SensorAngle, SensorDist)
+	vR := a.sense(gridWidth, gridHeight, pheromones, -SensorAngle, SensorDist)
 
 	if vF < 0 {
 		if vL > vR {
@@ -93,7 +93,7 @@ func (a *Ant) ApplySteering(worldWidth, worldHeight int, pheromones []float64) {
 }
 
 func (a *Ant) sense(
-	worldWidth, worldHeight int,
+	gridWidth, gridHeight int,
 	pheromones []float64,
 	sensorAngle float64, sensorDist float64,
 ) float64 {
@@ -101,10 +101,11 @@ func (a *Ant) sense(
 	sensorX := a.Position.X + math.Cos(angle)*sensorDist
 	sensorY := a.Position.Y + math.Sin(angle)*sensorDist
 
-	x, y := int(sensorX), int(sensorY)
+	gx := int(sensorX) / shared.GridScale
+	gy := int(sensorY) / shared.GridScale
 
-	if x >= 0 && x < worldWidth && y >= 0 && y < worldHeight {
-		index := GetPheromoneIndex(worldWidth, shared.Position{X: sensorX, Y: sensorY})
+	if gx >= 0 && gx < gridWidth && gy >= 0 && gy < gridHeight {
+		index := GetGridIndex(gridWidth, gridHeight, sensorX, sensorY)
 		return pheromones[index]
 	}
 	return -1

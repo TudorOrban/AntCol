@@ -13,8 +13,8 @@ const (
 	AntWidth             = 10
 	NumberOfAnts         = 100
 	NumberOfFoodSources  = 5
-	HomeRadius           = 100
-	MaxFoodSourceRadius  = 50.0
+	HomeRadius           = 50.0
+	MaxFoodSourceRadius  = 25.0
 	PheromoneDecay       = 0.98
 	PheromoneCap         = 10.0
 	DiffusionStrength    = 5.0
@@ -22,10 +22,11 @@ const (
 )
 
 type World struct {
-	Width, Height int
-	HomePosition  shared.Position
-	Ants          []ant.Ant
-	FoodSources   []shared.FoodSource
+	Width, Height         int
+	GridWidth, GridHeight int
+	HomePosition          shared.Position
+	Ants                  []ant.Ant
+	FoodSources           []shared.FoodSource
 
 	HomePheromones []float64
 	FoodPheromones []float64

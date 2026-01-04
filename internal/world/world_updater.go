@@ -14,24 +14,24 @@ func (w *World) UpdateEnvironment() {
 		return
 	}
 
-	for y := 1; y < w.Height-1; y++ {
-		for x := 1; x < w.Width-1; x++ {
-			idx := y*w.Width + x
+	// Apply diffusion
+	for y := 1; y < w.GridHeight-1; y++ {
+		for x := 1; x < w.GridWidth-1; x++ {
+			idx := y*w.GridWidth + x
 
-			// Average the 3x3 nieghbors
 			sumHome := (w.HomePheromones[idx-1] + w.HomePheromones[idx+1] +
-				w.HomePheromones[idx-w.Width] + w.HomePheromones[idx+w.Width] +
+				w.HomePheromones[idx-w.GridWidth] + w.HomePheromones[idx+w.GridWidth] +
 				w.HomePheromones[idx]) / DiffusionStrength
-
-			sumFood := (w.FoodPheromones[idx-1] + w.FoodPheromones[idx+1] +
-				w.FoodPheromones[idx-w.Width] + w.FoodPheromones[idx+w.Width] +
-				w.FoodPheromones[idx]) / DiffusionStrength
 
 			newValHome := sumHome * PheromoneDecay
 			if newValHome > PheromoneCap {
 				newValHome = PheromoneCap
 			}
 			w.HomeTemp[idx] = newValHome
+
+			sumFood := (w.FoodPheromones[idx-1] + w.FoodPheromones[idx+1] +
+				w.FoodPheromones[idx-w.GridWidth] + w.FoodPheromones[idx+w.GridWidth] +
+				w.FoodPheromones[idx]) / DiffusionStrength
 
 			newValFood := sumFood * PheromoneDecay
 			if newValFood > PheromoneCap {
@@ -41,7 +41,6 @@ func (w *World) UpdateEnvironment() {
 		}
 	}
 
-	// Swap buffers
 	w.HomePheromones, w.HomeTemp = w.HomeTemp, w.HomePheromones
 	w.FoodPheromones, w.FoodTemp = w.FoodTemp, w.FoodPheromones
 }
@@ -73,10 +72,10 @@ func (w *World) UpdateAnts() {
 			release = w.FoodPheromones
 		}
 
-		currentAnt.ApplySteering(w.Width, w.Height, guiding)
+		currentAnt.ApplySteering(w.GridWidth, w.GridHeight, guiding)
 
 		currentAnt.Move(float64(w.Width), float64(w.Height))
 
-		currentAnt.DepositPheromone(w.Width, release, w.FoodSources)
+		currentAnt.DepositPheromone(w.GridWidth, w.GridHeight, release, w.FoodSources)
 	}
 }
