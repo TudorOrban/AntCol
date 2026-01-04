@@ -15,10 +15,13 @@ const (
 )
 
 const (
-	AntSpeed     = 2
-	AntTurnSpeed = 0.2
-	SensorAngle  = 0.4
-	SensorDist   = 15
+	AntSpeed        = 2
+	AntTurnSpeed    = 0.15
+	SensorAngle     = 0.4
+	SensorDist      = 35
+	SensorThreshold = 0.05
+	DepositStrength = 5
+	ScentDecay      = 0.995
 )
 
 var stateName = map[AntState]string{
@@ -35,10 +38,11 @@ type Ant struct {
 	Position     shared.Position
 	AngleRadians float64
 	State        AntState
+	Scent        float64
 }
 
 func (a *Ant) Move(worldWidth, worldHeight float64) {
-	if rand.Float32() < 0.1 {
+	if rand.Float32() < 0.2 {
 		a.AngleRadians += (float64)(rand.Float32()-0.5) * 0.2
 	}
 
@@ -46,14 +50,17 @@ func (a *Ant) Move(worldWidth, worldHeight float64) {
 	a.Position.Y += math.Sin(a.AngleRadians) * AntSpeed
 
 	// Check screen boundaries
-	if a.Position.X < 0 || a.Position.X >= worldWidth {
+	margin := 20.0
+	if a.Position.X < margin || a.Position.X >= worldWidth-margin {
 		a.AngleRadians = math.Pi - a.AngleRadians
-		a.Position.X = math.Max(0, math.Min(a.Position.X, worldWidth-1))
+		a.Position.X = math.Max(margin, math.Min(a.Position.X, worldWidth-margin))
 	}
-	if a.Position.Y < 0 || a.Position.Y >= worldHeight {
+	if a.Position.Y < margin || a.Position.Y >= worldHeight-margin {
 		a.AngleRadians = -a.AngleRadians
-		a.Position.Y = math.Max(0, math.Min(a.Position.Y, worldHeight-1))
+		a.Position.Y = math.Max(margin, math.Min(a.Position.Y, worldHeight-margin))
 	}
+
+	a.Scent *= ScentDecay
 }
 
 func (a *Ant) ApplySteering(worldWidth, worldHeight int, pheromones []float64) {
@@ -61,14 +68,27 @@ func (a *Ant) ApplySteering(worldWidth, worldHeight int, pheromones []float64) {
 	vL := a.sense(worldWidth, worldHeight, pheromones, SensorAngle, SensorDist)
 	vR := a.sense(worldWidth, worldHeight, pheromones, -SensorAngle, SensorDist)
 
-	if vF > vL && vF > vR {
-		// Path is strongest ahead, do nothing
-	} else if vL > vR {
-		a.AngleRadians += AntTurnSpeed
-	} else if vR > vL {
-		a.AngleRadians -= AntTurnSpeed
-	} else if vF < 0 {
-		a.AngleRadians += math.Pi
+	if vF < 0 {
+		if vL > vR {
+			a.AngleRadians += AntTurnSpeed * 2
+		} else {
+			a.AngleRadians -= AntTurnSpeed * 2
+		}
+		return
+	}
+
+	if vL > SensorThreshold || vR > SensorThreshold || vF > SensorThreshold {
+		const inertiaRatio = 1.1
+
+		if vL > vR && vL > vF*inertiaRatio {
+			if rand.Float32() > 0.1 {
+				a.AngleRadians += AntTurnSpeed
+			}
+		} else if vR > vL && vR > vF*inertiaRatio {
+			if rand.Float32() > 0.1 {
+				a.AngleRadians -= AntTurnSpeed
+			}
+		}
 	}
 }
 
@@ -84,7 +104,7 @@ func (a *Ant) sense(
 	x, y := int(sensorX), int(sensorY)
 
 	if x >= 0 && x < worldWidth && y >= 0 && y < worldHeight {
-		index := getPheromoneIndex(worldWidth, shared.Position{X: sensorX, Y: sensorY})
+		index := GetPheromoneIndex(worldWidth, shared.Position{X: sensorX, Y: sensorY})
 		return pheromones[index]
 	}
 	return -1

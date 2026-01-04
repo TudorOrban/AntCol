@@ -12,7 +12,7 @@ import (
 )
 
 func GenerateWorld(w, h int) *World {
-	homePosition := shared.Position{X: 100, Y: float64(h / 2)}
+	homePosition := shared.Position{X: 800, Y: float64(h / 2)}
 	ants := GenerateAnts(w, h, homePosition)
 	foodSources := GenerateFoodSources(w, h)
 
@@ -29,10 +29,12 @@ func GenerateWorld(w, h int) *World {
 		Width:           w,
 		Height:          h,
 		HomePosition:    homePosition,
-		HomePheromones:  make([]float64, w*h),
-		FoodPheromones:  make([]float64, w*h),
 		Ants:            ants,
 		FoodSources:     foodSources,
+		HomePheromones:  make([]float64, w*h),
+		FoodPheromones:  make([]float64, w*h),
+		HomeTemp:        make([]float64, w*h),
+		FoodTemp:        make([]float64, w*h),
 		HomeImage:       homeImage,
 		AntImage:        antImage,
 		FoodSourceImage: foodSourceImage,
@@ -58,6 +60,7 @@ func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {
 			},
 			AngleRadians: angle,
 			State:        ant.SearchingForFood,
+			Scent:        InitialScentStrength,
 		}
 		ants = append(ants, ant)
 	}
