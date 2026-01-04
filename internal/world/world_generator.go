@@ -18,14 +18,10 @@ func GenerateWorld(w, h int) *World {
 	ants := GenerateAnts(w, h, homePosition)
 	foodSources := GenerateFoodSources(w, h, homePosition)
 
-	antImage := ebiten.NewImage(AntLength, AntWidth)
-	antImage.Fill(color.Black)
+	antImage, homeImage := shared.LoadAssets()
 
 	foodSourceImage := ebiten.NewImage(MaxFoodSourceRadius*2, MaxFoodSourceRadius*2)
 	foodSourceImage.Fill(color.RGBA{230, 10, 15, 230})
-
-	homeImage := ebiten.NewImage(HomeRadius*2, HomeRadius*2)
-	homeImage.Fill(color.RGBA{20, 10, 240, 230})
 
 	return &World{
 		Width:           w,

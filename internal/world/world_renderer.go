@@ -3,6 +3,7 @@ package world
 import (
 	"ant-sim/internal/ant"
 	"ant-sim/internal/shared"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -11,17 +12,19 @@ func (w *World) Draw(screen *ebiten.Image) {
 	w.drawPheromones(screen)
 	w.drawHome(screen, w.HomePosition)
 
-	for _, foodSource := range w.FoodSources {
-		w.drawFoodSource(screen, foodSource)
+	for i := range w.FoodSources {
+		w.drawFoodSource(screen, &w.FoodSources[i])
 	}
 
-	for _, ant := range w.Ants {
-		w.drawAnt(screen, ant)
+	for i := range w.Ants {
+		w.drawAnt(screen, &w.Ants[i])
 	}
 }
 
 func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
 	opts := &ebiten.DrawImageOptions{}
+
+	// imgW, imgH := w.AntImage.Bounds().Dx(), w.AntImage.Bounds().Dy()
 
 	opts.GeoM.Translate(-HomeRadius, -HomeRadius)
 
@@ -30,19 +33,21 @@ func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
 	screen.DrawImage(w.HomeImage, opts)
 }
 
-func (w *World) drawAnt(screen *ebiten.Image, ant ant.Ant) {
+func (w *World) drawAnt(screen *ebiten.Image, ant *ant.Ant) {
 	opts := &ebiten.DrawImageOptions{}
 
-	opts.GeoM.Translate(-AntLength/2, -AntWidth/2)
+	imgW, imgH := w.AntImage.Bounds().Dx(), w.AntImage.Bounds().Dy()
 
-	opts.GeoM.Rotate(ant.AngleRadians)
+	opts.GeoM.Translate(-float64(imgW)/2, -float64(imgH)/2)
+
+	opts.GeoM.Rotate(ant.AngleRadians + math.Pi/2)
 
 	opts.GeoM.Translate(ant.Position.X, ant.Position.Y)
 
 	screen.DrawImage(w.AntImage, opts)
 }
 
-func (w *World) drawFoodSource(screen *ebiten.Image, foodSource shared.FoodSource) {
+func (w *World) drawFoodSource(screen *ebiten.Image, foodSource *shared.FoodSource) {
 	opts := &ebiten.DrawImageOptions{}
 
 	opts.GeoM.Translate(-MaxFoodSourceRadius, -MaxFoodSourceRadius)
