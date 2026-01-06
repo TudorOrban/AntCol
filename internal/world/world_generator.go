@@ -17,11 +17,11 @@ func GenerateWorld(w, h int) *World {
 	ants := generateAnts(w, h, homePosition)
 	foodSources := generateFoodSources(w, h, homePosition)
 
-	grassTexture, antImage, homeImage, foodSourceImage := shared.LoadAssets()
+	grassTexture, antImage, homeImage, foodSourceImage, obstacleImage := shared.LoadAssets()
 
 	tiledBackground := tileBackground(w, h, grassTexture)
 
-	return &World{
+	world := &World{
 		Width:           w,
 		Height:          h,
 		GridWidth:       gw,
@@ -29,6 +29,8 @@ func GenerateWorld(w, h int) *World {
 		HomePosition:    homePosition,
 		Ants:            ants,
 		FoodSources:     foodSources,
+		WallRects:       []shared.Rectangle{},
+		Obstacles:       make([]bool, gw*gh),
 		HomePheromones:  make([]float64, gw*gh),
 		FoodPheromones:  make([]float64, gw*gh),
 		HomeTemp:        make([]float64, gw*gh),
@@ -38,9 +40,30 @@ func GenerateWorld(w, h int) *World {
 		AntImage:        antImage,
 		FoodSourceImage: foodSourceImage,
 		PheromoneImage:  ebiten.NewImage(gw, gh),
+		ObstacleImage:   obstacleImage,
 		PixelBuffer:     make([]byte, gw*gh*4),
 		FoodCollected:   0,
 		TotalTicks:      0,
+	}
+
+	generateObstacles(world)
+
+	return world
+}
+
+func generateObstacles(world *World) {
+	for _ = range NumberOfObstacles {
+		posX := rand.Float64() * float64(world.Width)
+		posY := rand.Float64() * float64(world.Height)
+		width := rand.Float64() * ObstacleMaxLength
+
+		rect := shared.Rectangle{
+			X:      posX,
+			Y:      posY,
+			Width:  width,
+			Height: 50,
+		}
+		world.AddWall(rect)
 	}
 }
 

@@ -8,13 +8,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func LoadAssets() (*ebiten.Image, *ebiten.Image, *ebiten.Image, *ebiten.Image) {
+func LoadAssets() (*ebiten.Image, *ebiten.Image, *ebiten.Image, *ebiten.Image, *ebiten.Image) {
 	grassTexture := loadGrassTexture()
 	antImage := loadAntAsset()
 	homeImage := loadHomeAsset()
 	foodSourceImage := loadFoodSourceAsset()
+	obstacleImage := loadObstacleAsset()
 
-	return grassTexture, antImage, homeImage, foodSourceImage
+	return grassTexture, antImage, homeImage, foodSourceImage, obstacleImage
 }
 
 func loadGrassTexture() *ebiten.Image {
@@ -35,6 +36,11 @@ func loadHomeAsset() *ebiten.Image {
 func loadFoodSourceAsset() *ebiten.Image {
 	originalFoodSourceImage := loadImage("../assets/food_source.png")
 	return rescaleImage(originalFoodSourceImage, 0.25)
+}
+
+func loadObstacleAsset() *ebiten.Image {
+	originalObstacleImage := loadImage("../assets/obstacle.jpg")
+	return rescaleImage(originalObstacleImage, 0.25)
 }
 
 func loadImage(path string) *ebiten.Image {

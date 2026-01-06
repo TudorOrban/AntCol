@@ -20,6 +20,10 @@ func (w *World) Draw(screen *ebiten.Image) {
 	for i := range w.Ants {
 		w.drawAnt(screen, &w.Ants[i])
 	}
+
+	for i := range w.WallRects {
+		w.drawWall(screen, &w.WallRects[i])
+	}
 }
 
 func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
@@ -80,6 +84,15 @@ func (w *World) drawPheromones(screen *ebiten.Image) {
 	screen.DrawImage(w.PheromoneImage, opts)
 }
 
+func (w *World) drawWall(screen *ebiten.Image, rect *shared.Rectangle) {
+	op := &ebiten.DrawImageOptions{}
+	sw, sh := w.ObstacleImage.Bounds().Dx(), w.ObstacleImage.Bounds().Dy()
+	op.GeoM.Scale(rect.Width/float64(sw), rect.Height/float64(sh))
+	op.GeoM.Translate(rect.X, rect.Y)
+	screen.DrawImage(w.ObstacleImage, op)
+}
+
+// Utils
 func clamp(v float64) float64 {
 	if v < 0 {
 		return 0

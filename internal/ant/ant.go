@@ -42,15 +42,28 @@ type Ant struct {
 	GatheredFood int
 }
 
-func (a *Ant) Move(worldWidth, worldHeight float64) {
+func (a *Ant) Move(worldWidth, worldHeight float64, obstacles []bool, gridWidth int) {
 	if rand.Float32() < 0.2 {
 		a.AngleRadians += (float64)(rand.Float32()-0.5) * 0.2
 	}
 
-	a.Position.X += math.Cos(a.AngleRadians) * AntSpeed
-	a.Position.Y += math.Sin(a.AngleRadians) * AntSpeed
+	nextX := a.Position.X + math.Cos(a.AngleRadians)*AntSpeed
+	nextY := a.Position.Y + math.Sin(a.AngleRadians)*AntSpeed
 
-	// Check screen boundaries
+	gx := int(nextX) / shared.GridScale
+	gy := int(nextY) / shared.GridScale
+	gridIdx := gy*gridWidth + gx
+
+	// 3. Collision Check
+	if gridIdx >= 0 && gridIdx < len(obstacles) && obstacles[gridIdx] {
+		a.AngleRadians += math.Pi + (float64(rand.Float32()) - 0.5)
+		return
+	}
+
+	a.Position.X = nextX
+	a.Position.Y = nextY
+
+	// Boundary Check
 	margin := 20.0
 	if a.Position.X < margin || a.Position.X >= worldWidth-margin {
 		a.AngleRadians = math.Pi - a.AngleRadians

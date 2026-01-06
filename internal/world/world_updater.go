@@ -58,7 +58,7 @@ func (w *World) UpdateAnts() {
 		}
 
 		currentAnt.ApplySteering(w.GridWidth, w.GridHeight, guiding)
-		currentAnt.Move(float64(w.Width), float64(w.Height))
+		currentAnt.Move(float64(w.Width), float64(w.Height), w.Obstacles, w.GridWidth)
 
 		// Check destination
 		if currentAnt.State == ant.SearchingForFood {

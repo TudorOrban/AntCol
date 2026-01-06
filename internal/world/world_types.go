@@ -13,6 +13,8 @@ const (
 	AntWidth             = 10
 	NumberOfAnts         = 100
 	NumberOfFoodSources  = 5
+	NumberOfObstacles    = 3
+	ObstacleMaxLength    = 500
 	HomeRadius           = 50.0
 	MaxFoodSourceRadius  = 40.0
 	PheromoneDecay       = 0.99
@@ -27,6 +29,8 @@ type World struct {
 	HomePosition          shared.Position
 	Ants                  []ant.Ant
 	FoodSources           []shared.FoodSource
+	Obstacles             []bool
+	WallRects             []shared.Rectangle
 
 	HomePheromones []float64
 	FoodPheromones []float64
@@ -38,6 +42,7 @@ type World struct {
 	AntImage        *ebiten.Image
 	FoodSourceImage *ebiten.Image
 	PheromoneImage  *ebiten.Image
+	ObstacleImage   *ebiten.Image
 	PixelBuffer     []byte
 	mu              sync.RWMutex
 

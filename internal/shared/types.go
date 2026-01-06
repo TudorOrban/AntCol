@@ -8,3 +8,8 @@ type FoodSource struct {
 	Position Position
 	Radius   float64
 }
+
+type Rectangle struct {
+	X, Y          float64
+	Width, Height float64
+}
