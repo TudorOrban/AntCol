@@ -9,6 +9,7 @@ import (
 )
 
 func (w *World) Draw(screen *ebiten.Image) {
+	screen.DrawImage(w.GrassBackground, nil)
 	w.drawPheromones(screen)
 	w.drawHome(screen, w.HomePosition)
 
@@ -66,7 +67,7 @@ func (w *World) drawPheromones(screen *ebiten.Image) {
 		strength := clamp((home + food) * 255)
 
 		w.PixelBuffer[pixIdx] = uint8(clamp(food * 255))
-		w.PixelBuffer[pixIdx+1] = 0
+		w.PixelBuffer[pixIdx+1] = 80
 		w.PixelBuffer[pixIdx+2] = uint8(clamp(home * 255))
 		w.PixelBuffer[pixIdx+3] = uint8(strength)
 	}

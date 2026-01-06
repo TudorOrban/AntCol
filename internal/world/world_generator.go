@@ -1,7 +1,6 @@
 package world
 
 import (
-	"image/color"
 	"math"
 	"math/rand/v2"
 
@@ -18,10 +17,19 @@ func GenerateWorld(w, h int) *World {
 	ants := GenerateAnts(w, h, homePosition)
 	foodSources := GenerateFoodSources(w, h, homePosition)
 
-	antImage, homeImage := shared.LoadAssets()
+	grassTexture, antImage, homeImage, foodSourceImage := shared.LoadAssets()
 
-	foodSourceImage := ebiten.NewImage(MaxFoodSourceRadius*2, MaxFoodSourceRadius*2)
-	foodSourceImage.Fill(color.RGBA{230, 10, 15, 230})
+	bakedBackground := ebiten.NewImage(w, h)
+
+	tileW, tileH := grassTexture.Bounds().Dx(), grassTexture.Bounds().Dy()
+
+	for y := 0; y < w; y += tileH {
+		for x := 0; x < w; x += tileW {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(x), float64(y))
+			bakedBackground.DrawImage(grassTexture, op)
+		}
+	}
 
 	return &World{
 		Width:           w,
@@ -35,6 +43,7 @@ func GenerateWorld(w, h int) *World {
 		FoodPheromones:  make([]float64, gw*gh),
 		HomeTemp:        make([]float64, gw*gh),
 		FoodTemp:        make([]float64, gw*gh),
+		GrassBackground: bakedBackground,
 		HomeImage:       homeImage,
 		AntImage:        antImage,
 		FoodSourceImage: foodSourceImage,
@@ -43,6 +52,10 @@ func GenerateWorld(w, h int) *World {
 		FoodCollected:   0,
 		TotalTicks:      0,
 	}
+}
+
+func tileBackground() {
+
 }
 
 func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {

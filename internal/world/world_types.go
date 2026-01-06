@@ -33,6 +33,7 @@ type World struct {
 	HomeTemp       []float64
 	FoodTemp       []float64
 
+	GrassBackground *ebiten.Image
 	HomeImage       *ebiten.Image
 	AntImage        *ebiten.Image
 	FoodSourceImage *ebiten.Image

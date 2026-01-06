@@ -2,16 +2,24 @@ package shared
 
 import (
 	"image"
+	_ "image/jpeg"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func LoadAssets() (*ebiten.Image, *ebiten.Image) {
+func LoadAssets() (*ebiten.Image, *ebiten.Image, *ebiten.Image, *ebiten.Image) {
+	grassTexture := loadGrassTexture()
 	antImage := loadAntAsset()
 	homeImage := loadHomeAsset()
+	foodSourceImage := loadFoodSourceAsset()
 
-	return antImage, homeImage
+	return grassTexture, antImage, homeImage, foodSourceImage
+}
+
+func loadGrassTexture() *ebiten.Image {
+	originalGrassTexture := loadImage("../assets/grass_texture.jpeg")
+	return rescaleImage(originalGrassTexture, 0.35)
 }
 
 func loadAntAsset() *ebiten.Image {
@@ -20,8 +28,13 @@ func loadAntAsset() *ebiten.Image {
 }
 
 func loadHomeAsset() *ebiten.Image {
-	originalAntImage := loadImage("../assets/colony_home.png")
-	return rescaleImage(originalAntImage, 0.1)
+	originaHomeImage := loadImage("../assets/colony_home.png")
+	return rescaleImage(originaHomeImage, 0.1)
+}
+
+func loadFoodSourceAsset() *ebiten.Image {
+	originalFoodSourceImage := loadImage("../assets/food_source.png")
+	return rescaleImage(originalFoodSourceImage, 0.25)
 }
 
 func loadImage(path string) *ebiten.Image {

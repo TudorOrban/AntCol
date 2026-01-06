@@ -28,8 +28,6 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{34, 139, 34, 255})
-
 	g.world.Draw(screen)
 
 	// Display info
