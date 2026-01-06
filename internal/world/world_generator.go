@@ -14,22 +14,12 @@ func GenerateWorld(w, h int) *World {
 	gw, gh := w/shared.GridScale, h/shared.GridScale
 
 	homePosition := shared.Position{X: float64(w / 2), Y: float64(h / 2)}
-	ants := GenerateAnts(w, h, homePosition)
-	foodSources := GenerateFoodSources(w, h, homePosition)
+	ants := generateAnts(w, h, homePosition)
+	foodSources := generateFoodSources(w, h, homePosition)
 
 	grassTexture, antImage, homeImage, foodSourceImage := shared.LoadAssets()
 
-	bakedBackground := ebiten.NewImage(w, h)
-
-	tileW, tileH := grassTexture.Bounds().Dx(), grassTexture.Bounds().Dy()
-
-	for y := 0; y < w; y += tileH {
-		for x := 0; x < w; x += tileW {
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(x), float64(y))
-			bakedBackground.DrawImage(grassTexture, op)
-		}
-	}
+	tiledBackground := tileBackground(w, h, grassTexture)
 
 	return &World{
 		Width:           w,
@@ -43,7 +33,7 @@ func GenerateWorld(w, h int) *World {
 		FoodPheromones:  make([]float64, gw*gh),
 		HomeTemp:        make([]float64, gw*gh),
 		FoodTemp:        make([]float64, gw*gh),
-		GrassBackground: bakedBackground,
+		GrassBackground: tiledBackground,
 		HomeImage:       homeImage,
 		AntImage:        antImage,
 		FoodSourceImage: foodSourceImage,
@@ -54,11 +44,23 @@ func GenerateWorld(w, h int) *World {
 	}
 }
 
-func tileBackground() {
+func tileBackground(w, h int, grassTexture *ebiten.Image) *ebiten.Image {
+	bakedBackground := ebiten.NewImage(w, h)
 
+	tileW, tileH := grassTexture.Bounds().Dx(), grassTexture.Bounds().Dy()
+
+	for y := 0; y < w; y += tileH {
+		for x := 0; x < w; x += tileW {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(x), float64(y))
+			bakedBackground.DrawImage(grassTexture, op)
+		}
+	}
+
+	return bakedBackground
 }
 
-func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {
+func generateAnts(w, h int, homePosition shared.Position) []ant.Ant {
 	ants := []ant.Ant{}
 
 	for _ = range NumberOfAnts {
@@ -74,6 +76,7 @@ func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {
 			AngleRadians: angle,
 			State:        ant.SearchingForFood,
 			Scent:        InitialScentStrength,
+			GatheredFood: 0,
 		}
 		ants = append(ants, ant)
 	}
@@ -81,7 +84,7 @@ func GenerateAnts(w, h int, homePosition shared.Position) []ant.Ant {
 	return ants
 }
 
-func GenerateFoodSources(w, h int, homePosition shared.Position) []shared.FoodSource {
+func generateFoodSources(w, h int, homePosition shared.Position) []shared.FoodSource {
 	foodSources := []shared.FoodSource{}
 
 	for _ = range NumberOfFoodSources {

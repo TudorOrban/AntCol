@@ -49,6 +49,18 @@ func (w *World) UpdateAnts() {
 	for i := range w.Ants {
 		currentAnt := &w.Ants[i]
 
+		// Steer & Move
+		var guiding []float64
+		if currentAnt.State == ant.SearchingForFood {
+			guiding = w.FoodPheromones
+		} else {
+			guiding = w.HomePheromones
+		}
+
+		currentAnt.ApplySteering(w.GridWidth, w.GridHeight, guiding)
+		currentAnt.Move(float64(w.Width), float64(w.Height))
+
+		// Check destination
 		if currentAnt.State == ant.SearchingForFood {
 			if currentAnt.IsAtFoodSource(w.FoodSources) {
 				currentAnt.State = ant.ReturningHome
@@ -59,22 +71,21 @@ func (w *World) UpdateAnts() {
 			if currentAnt.IsAtHome(w.HomePosition, HomeRadius) {
 				currentAnt.State = ant.SearchingForFood
 				currentAnt.AngleRadians += math.Pi // Head back out
+
+				// Stats
+				currentAnt.GatheredFood++
 				w.FoodCollected++
+				w.updateLeaderboard()
 			}
 		}
 
-		var guiding, release []float64
+		// Deposit
+		var release []float64
 		if currentAnt.State == ant.SearchingForFood {
-			guiding = w.FoodPheromones
 			release = w.HomePheromones
 		} else {
-			guiding = w.HomePheromones
 			release = w.FoodPheromones
 		}
-
-		currentAnt.ApplySteering(w.GridWidth, w.GridHeight, guiding)
-
-		currentAnt.Move(float64(w.Width), float64(w.Height))
 
 		currentAnt.DepositPheromone(w.GridWidth, w.GridHeight, release, w.FoodSources)
 	}

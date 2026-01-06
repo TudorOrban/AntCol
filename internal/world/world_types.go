@@ -14,8 +14,8 @@ const (
 	NumberOfAnts         = 100
 	NumberOfFoodSources  = 5
 	HomeRadius           = 50.0
-	MaxFoodSourceRadius  = 25.0
-	PheromoneDecay       = 0.98
+	MaxFoodSourceRadius  = 40.0
+	PheromoneDecay       = 0.99
 	PheromoneCap         = 10.0
 	DiffusionStrength    = 5.0
 	InitialScentStrength = 10.0
@@ -43,4 +43,5 @@ type World struct {
 
 	FoodCollected int
 	TotalTicks    int
+	TopAnts       []*ant.Ant
 }

@@ -2,12 +2,9 @@ package main
 
 import (
 	"ant-sim/internal/world"
-	"fmt"
-	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -30,19 +27,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.world.Draw(screen)
 
-	// Display info
-	debugBar := ebiten.NewImage(200, 40)
-	debugBar.Fill(color.RGBA{0, 0, 0, 150})
-	screen.DrawImage(debugBar, nil)
-
-	minutesPassed := float64(g.world.TotalTicks) / 3600.0
-	avgPerMin := 0.0
-	if minutesPassed > 0 {
-		avgPerMin = float64(g.world.FoodCollected) / minutesPassed
-	}
-
-	stats := fmt.Sprintf("Food Collected: %d\nAvg Food/Min: %.2f", g.world.FoodCollected, avgPerMin)
-	ebitenutil.DebugPrint(screen, stats)
+	g.world.RenderStats(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

@@ -39,6 +39,7 @@ type Ant struct {
 	AngleRadians float64
 	State        AntState
 	Scent        float64
+	GatheredFood int
 }
 
 func (a *Ant) Move(worldWidth, worldHeight float64) {
