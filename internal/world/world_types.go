@@ -9,14 +9,17 @@ import (
 )
 
 const (
-	AntLength            = 30
-	AntWidth             = 10
-	NumberOfAnts         = 100
-	NumberOfFoodSources  = 5
-	NumberOfObstacles    = 3
-	ObstacleMaxLength    = 500
-	HomeRadius           = 50.0
-	MaxFoodSourceRadius  = 40.0
+	AntLength           = 30
+	AntWidth            = 10
+	NumberOfAnts        = 150
+	NumberOfFoodSources = 10
+	NumberOfObstacles   = 4
+	ObstacleMaxLength   = 400
+	HomeRadius          = 50.0
+	MaxFoodSourceRadius = 40.0
+
+	CameraSpeed = 5.0
+
 	PheromoneDecay       = 0.99
 	PheromoneCap         = 10.0
 	DiffusionStrength    = 5.0
@@ -36,6 +39,11 @@ type World struct {
 	FoodPheromones []float64
 	HomeTemp       []float64
 	FoodTemp       []float64
+
+	CameraPosition shared.Position
+	Zoom           float64
+	lastMouseX     int
+	lastMouseY     int
 
 	GrassBackground *ebiten.Image
 	HomeImage       *ebiten.Image

@@ -29,18 +29,17 @@ func (w *World) Draw(screen *ebiten.Image) {
 func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
 	opts := &ebiten.DrawImageOptions{}
 
-	// imgW, imgH := w.AntImage.Bounds().Dx(), w.AntImage.Bounds().Dy()
-
 	opts.GeoM.Translate(-HomeRadius, -HomeRadius)
 
 	opts.GeoM.Translate(homePosition.X, homePosition.Y)
+
+	w.applyCamera(opts)
 
 	screen.DrawImage(w.HomeImage, opts)
 }
 
 func (w *World) drawAnt(screen *ebiten.Image, ant *ant.Ant) {
 	opts := &ebiten.DrawImageOptions{}
-
 	imgW, imgH := w.AntImage.Bounds().Dx(), w.AntImage.Bounds().Dy()
 
 	opts.GeoM.Translate(-float64(imgW)/2, -float64(imgH)/2)
@@ -48,6 +47,8 @@ func (w *World) drawAnt(screen *ebiten.Image, ant *ant.Ant) {
 	opts.GeoM.Rotate(ant.AngleRadians + math.Pi/2)
 
 	opts.GeoM.Translate(ant.Position.X, ant.Position.Y)
+
+	w.applyCamera(opts)
 
 	screen.DrawImage(w.AntImage, opts)
 }
@@ -58,6 +59,8 @@ func (w *World) drawFoodSource(screen *ebiten.Image, foodSource *shared.FoodSour
 	opts.GeoM.Translate(-MaxFoodSourceRadius, -MaxFoodSourceRadius)
 
 	opts.GeoM.Translate(foodSource.Position.X, foodSource.Position.Y)
+
+	w.applyCamera(opts)
 
 	screen.DrawImage(w.FoodSourceImage, opts)
 }
@@ -81,15 +84,28 @@ func (w *World) drawPheromones(screen *ebiten.Image) {
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Scale(float64(shared.GridScale), float64(shared.GridScale))
 
+	w.applyCamera(opts)
+
 	screen.DrawImage(w.PheromoneImage, opts)
 }
 
 func (w *World) drawWall(screen *ebiten.Image, rect *shared.Rectangle) {
-	op := &ebiten.DrawImageOptions{}
+	opts := &ebiten.DrawImageOptions{}
 	sw, sh := w.ObstacleImage.Bounds().Dx(), w.ObstacleImage.Bounds().Dy()
-	op.GeoM.Scale(rect.Width/float64(sw), rect.Height/float64(sh))
-	op.GeoM.Translate(rect.X, rect.Y)
-	screen.DrawImage(w.ObstacleImage, op)
+
+	opts.GeoM.Scale(rect.Width/float64(sw), rect.Height/float64(sh))
+
+	opts.GeoM.Translate(rect.X, rect.Y)
+
+	w.applyCamera(opts)
+
+	screen.DrawImage(w.ObstacleImage, opts)
+}
+
+func (w *World) applyCamera(opts *ebiten.DrawImageOptions) {
+	opts.GeoM.Translate(-w.CameraPosition.X, -w.CameraPosition.Y)
+
+	opts.GeoM.Scale(w.Zoom, w.Zoom)
 }
 
 // Utils
@@ -101,4 +117,10 @@ func clamp(v float64) float64 {
 		return 255
 	}
 	return v
+}
+
+func (w *World) ScreenToWorld(screenX, screenY int) (float64, float64) {
+	worldX := (float64(screenX) / w.Zoom) + w.CameraPosition.X
+	worldY := (float64(screenY) / w.Zoom) + w.CameraPosition.Y
+	return worldX, worldY
 }

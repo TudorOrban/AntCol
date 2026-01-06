@@ -10,6 +10,8 @@ import (
 const (
 	screenWidth  = 1800
 	screenHeight = 1200
+	mapWidth     = 3000
+	mapHeight    = 2000
 )
 
 type Game struct {
@@ -20,6 +22,7 @@ func (g *Game) Update() error {
 	g.world.TotalTicks++
 	g.world.UpdateEnvironment()
 	g.world.UpdateAnts()
+	g.world.UpdateCamera()
 
 	return nil
 }
@@ -36,7 +39,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	game := &Game{
-		world: world.GenerateWorld(screenWidth, screenHeight),
+		world: world.GenerateWorld(mapWidth, mapHeight),
 	}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)

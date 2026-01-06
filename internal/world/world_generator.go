@@ -13,13 +13,13 @@ import (
 func GenerateWorld(w, h int) *World {
 	gw, gh := w/shared.GridScale, h/shared.GridScale
 
-	homePosition := shared.Position{X: float64(w / 2), Y: float64(h / 2)}
-	ants := generateAnts(w, h, homePosition)
-	foodSources := generateFoodSources(w, h, homePosition)
-
 	grassTexture, antImage, homeImage, foodSourceImage, obstacleImage := shared.LoadAssets()
 
 	tiledBackground := tileBackground(w, h, grassTexture)
+
+	homePosition := shared.Position{X: float64(w / 2), Y: float64(h / 2)}
+	ants := generateAnts(w, h, homePosition)
+	foodSources := generateFoodSources(w, h, homePosition)
 
 	world := &World{
 		Width:           w,
@@ -35,6 +35,8 @@ func GenerateWorld(w, h int) *World {
 		FoodPheromones:  make([]float64, gw*gh),
 		HomeTemp:        make([]float64, gw*gh),
 		FoodTemp:        make([]float64, gw*gh),
+		CameraPosition:  shared.Position{X: 0, Y: 0},
+		Zoom:            1,
 		GrassBackground: tiledBackground,
 		HomeImage:       homeImage,
 		AntImage:        antImage,
@@ -49,22 +51,6 @@ func GenerateWorld(w, h int) *World {
 	generateObstacles(world)
 
 	return world
-}
-
-func generateObstacles(world *World) {
-	for _ = range NumberOfObstacles {
-		posX := rand.Float64() * float64(world.Width)
-		posY := rand.Float64() * float64(world.Height)
-		width := rand.Float64() * ObstacleMaxLength
-
-		rect := shared.Rectangle{
-			X:      posX,
-			Y:      posY,
-			Width:  width,
-			Height: 50,
-		}
-		world.AddWall(rect)
-	}
 }
 
 func tileBackground(w, h int, grassTexture *ebiten.Image) *ebiten.Image {
@@ -134,4 +120,20 @@ func generateFoodSources(w, h int, homePosition shared.Position) []shared.FoodSo
 	}
 
 	return foodSources
+}
+
+func generateObstacles(world *World) {
+	for _ = range NumberOfObstacles {
+		posX := rand.Float64() * float64(world.Width)
+		posY := rand.Float64() * float64(world.Height)
+		width := rand.Float64() * ObstacleMaxLength
+
+		rect := shared.Rectangle{
+			X:      posX,
+			Y:      posY,
+			Width:  width,
+			Height: 50,
+		}
+		world.AddWall(rect)
+	}
 }
