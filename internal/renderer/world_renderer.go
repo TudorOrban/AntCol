@@ -1,44 +1,45 @@
-package world
+package renderer
 
 import (
 	"ant-sim/internal/ant"
 	"ant-sim/internal/shared"
+	"ant-sim/internal/state"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func (w *World) Draw(screen *ebiten.Image) {
+func Draw(screen *ebiten.Image, w *state.World) {
 	screen.DrawImage(w.GrassBackground, nil)
-	w.drawPheromones(screen)
-	w.drawHome(screen, w.HomePosition)
+	drawPheromones(screen, w)
+	drawHome(screen, w)
 
 	for i := range w.FoodSources {
-		w.drawFoodSource(screen, &w.FoodSources[i])
+		drawFoodSource(screen, w, &w.FoodSources[i])
 	}
 
 	for i := range w.Ants {
-		w.drawAnt(screen, &w.Ants[i])
+		drawAnt(screen, w, &w.Ants[i])
 	}
 
 	for i := range w.WallRects {
-		w.drawWall(screen, &w.WallRects[i])
+		drawWall(screen, w, &w.WallRects[i])
 	}
 }
 
-func (w *World) drawHome(screen *ebiten.Image, homePosition shared.Position) {
+func drawHome(screen *ebiten.Image, w *state.World) {
 	opts := &ebiten.DrawImageOptions{}
 
-	opts.GeoM.Translate(-HomeRadius, -HomeRadius)
+	opts.GeoM.Translate(-w.Config.Map.HomeRadius, -w.Config.Map.HomeRadius)
 
-	opts.GeoM.Translate(homePosition.X, homePosition.Y)
+	opts.GeoM.Translate(w.HomePosition.X, w.HomePosition.Y)
 
-	w.applyCamera(opts)
+	applyCamera(w, opts)
 
 	screen.DrawImage(w.HomeImage, opts)
 }
 
-func (w *World) drawAnt(screen *ebiten.Image, ant *ant.Ant) {
+func drawAnt(screen *ebiten.Image, w *state.World, ant *ant.Ant) {
 	opts := &ebiten.DrawImageOptions{}
 	imgW, imgH := w.AntImage.Bounds().Dx(), w.AntImage.Bounds().Dy()
 
@@ -48,24 +49,24 @@ func (w *World) drawAnt(screen *ebiten.Image, ant *ant.Ant) {
 
 	opts.GeoM.Translate(ant.Position.X, ant.Position.Y)
 
-	w.applyCamera(opts)
+	applyCamera(w, opts)
 
 	screen.DrawImage(w.AntImage, opts)
 }
 
-func (w *World) drawFoodSource(screen *ebiten.Image, foodSource *shared.FoodSource) {
+func drawFoodSource(screen *ebiten.Image, w *state.World, foodSource *shared.FoodSource) {
 	opts := &ebiten.DrawImageOptions{}
 
-	opts.GeoM.Translate(-MaxFoodSourceRadius, -MaxFoodSourceRadius)
+	opts.GeoM.Translate(-w.Config.Food.MaxFoodSourceRadius, -w.Config.Food.MaxFoodSourceRadius)
 
 	opts.GeoM.Translate(foodSource.Position.X, foodSource.Position.Y)
 
-	w.applyCamera(opts)
+	applyCamera(w, opts)
 
 	screen.DrawImage(w.FoodSourceImage, opts)
 }
 
-func (w *World) drawPheromones(screen *ebiten.Image) {
+func drawPheromones(screen *ebiten.Image, w *state.World) {
 	for i := 0; i < len(w.HomePheromones); i++ {
 		pixIdx := i * 4
 		home := w.HomePheromones[i]
@@ -84,12 +85,12 @@ func (w *World) drawPheromones(screen *ebiten.Image) {
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Scale(float64(shared.GridScale), float64(shared.GridScale))
 
-	w.applyCamera(opts)
+	applyCamera(w, opts)
 
 	screen.DrawImage(w.PheromoneImage, opts)
 }
 
-func (w *World) drawWall(screen *ebiten.Image, rect *shared.Rectangle) {
+func drawWall(screen *ebiten.Image, w *state.World, rect *shared.Rectangle) {
 	opts := &ebiten.DrawImageOptions{}
 	sw, sh := w.ObstacleImage.Bounds().Dx(), w.ObstacleImage.Bounds().Dy()
 
@@ -97,12 +98,12 @@ func (w *World) drawWall(screen *ebiten.Image, rect *shared.Rectangle) {
 
 	opts.GeoM.Translate(rect.X, rect.Y)
 
-	w.applyCamera(opts)
+	applyCamera(w, opts)
 
 	screen.DrawImage(w.ObstacleImage, opts)
 }
 
-func (w *World) applyCamera(opts *ebiten.DrawImageOptions) {
+func applyCamera(w *state.World, opts *ebiten.DrawImageOptions) {
 	opts.GeoM.Translate(-w.CameraPosition.X, -w.CameraPosition.Y)
 
 	opts.GeoM.Scale(w.Zoom, w.Zoom)
@@ -119,7 +120,7 @@ func clamp(v float64) float64 {
 	return v
 }
 
-func (w *World) ScreenToWorld(screenX, screenY int) (float64, float64) {
+func ScreenToWorld(w *state.World, screenX, screenY int) (float64, float64) {
 	worldX := (float64(screenX) / w.Zoom) + w.CameraPosition.X
 	worldY := (float64(screenY) / w.Zoom) + w.CameraPosition.Y
 	return worldX, worldY

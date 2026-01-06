@@ -1,5 +1,9 @@
 package shared
 
+const (
+	GridScale = 2
+)
+
 type Position struct {
 	X, Y float64
 }

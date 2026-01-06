@@ -15,13 +15,14 @@ const (
 )
 
 const (
-	AntSpeed        = 2
-	AntTurnSpeed    = 0.15
-	SensorAngle     = 0.4
-	SensorDist      = 35
-	SensorThreshold = 0.05
-	DepositStrength = 5
-	ScentDecay      = 0.995
+	AntSpeed         = 2
+	AntTurnSpeed     = 0.15
+	SensorAngle      = 0.4
+	SensorDist       = 35
+	SensorThreshold  = 0.05
+	DepositStrength  = 5
+	ScentDecay       = 0.995
+	MovementFoodCost = 0.005
 )
 
 var stateName = map[AntState]string{
@@ -36,10 +37,11 @@ func (as AntState) String() string {
 
 type Ant struct {
 	Position     shared.Position
-	AngleRadians float64
+	AngleRadians float64 // 0 to 2 * Pi
 	State        AntState
-	Scent        float64
+	Scent        float64 // Max 10
 	GatheredFood int
+	CurrentFood  float64 // Max 100
 }
 
 func (a *Ant) Move(worldWidth, worldHeight float64, obstacles []bool, gridWidth int) {
@@ -60,10 +62,12 @@ func (a *Ant) Move(worldWidth, worldHeight float64, obstacles []bool, gridWidth 
 		return
 	}
 
+	// 4. Move & Use energy
 	a.Position.X = nextX
 	a.Position.Y = nextY
+	a.CurrentFood -= MovementFoodCost
 
-	// Boundary Check
+	// 5. Boundary Check
 	margin := 20.0
 	if a.Position.X < margin || a.Position.X >= worldWidth-margin {
 		a.AngleRadians = math.Pi - a.AngleRadians
@@ -143,4 +147,12 @@ func (a *Ant) IsAtHome(homePosition shared.Position, homeRadius float64) bool {
 	dy := a.Position.Y - homePosition.Y
 	distSq := dx*dx + dy*dy
 	return distSq < homeRadius*homeRadius
+}
+
+func (a *Ant) ConsumeEnergy() {
+	a.CurrentFood -= MovementFoodCost
+}
+
+func (a *Ant) IsDead() bool {
+	return a.CurrentFood <= 0
 }

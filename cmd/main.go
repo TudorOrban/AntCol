@@ -1,7 +1,11 @@
 package main
 
 import (
-	"ant-sim/internal/world"
+	"ant-sim/internal/mapgen"
+	"ant-sim/internal/renderer"
+	"ant-sim/internal/state"
+	"ant-sim/internal/statistics"
+	"ant-sim/internal/updater"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -15,22 +19,23 @@ const (
 )
 
 type Game struct {
-	world *world.World
+	world *state.World
 }
 
 func (g *Game) Update() error {
 	g.world.TotalTicks++
-	g.world.UpdateEnvironment()
-	g.world.UpdateAnts()
-	g.world.UpdateCamera()
+
+	updater.UpdateEnvironment(g.world)
+	updater.UpdateAnts(g.world)
+	updater.UpdateCamera(g.world)
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.world.Draw(screen)
+	renderer.Draw(screen, g.world)
 
-	g.world.RenderStats(screen)
+	statistics.RenderStats(screen, g.world)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -39,7 +44,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	game := &Game{
-		world: world.GenerateWorld(mapWidth, mapHeight),
+		world: mapgen.GenerateWorld(mapWidth, mapHeight),
 	}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)

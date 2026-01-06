@@ -1,7 +1,8 @@
-package world
+package statistics
 
 import (
 	"ant-sim/internal/ant"
+	"ant-sim/internal/state"
 	"fmt"
 	"image/color"
 	"sort"
@@ -10,7 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-func (w *World) RenderStats(screen *ebiten.Image) {
+func RenderStats(screen *ebiten.Image, w *state.World) {
 	debugBar := ebiten.NewImage(200, 400)
 	debugBar.Fill(color.RGBA{0, 0, 0, 150})
 	screen.DrawImage(debugBar, nil)
@@ -33,7 +34,7 @@ func (w *World) RenderStats(screen *ebiten.Image) {
 	}
 }
 
-func (w *World) updateLeaderboard() {
+func UpdateLeaderboard(w *state.World) {
 	allAnts := make([]*ant.Ant, len(w.Ants))
 	for i := range w.Ants {
 		allAnts[i] = &w.Ants[i]
