@@ -45,13 +45,13 @@ type World struct {
 
 type WorldConfig struct {
 	Map struct {
-		Width               int
-		Height              int
-		NumAnts             int
-		NumFoodSources      int
-		NumObstacles        int
-		ObstacleMaxLength   float64
-		HomeRadius          float64
+		Width             int
+		Height            int
+		NumAnts           int
+		NumFoodSources    int
+		NumObstacles      int
+		ObstacleMaxLength float64
+		HomeRadius        float64
 	}
 	Ant struct {
 		Length           float64
@@ -72,11 +72,16 @@ type WorldConfig struct {
 		ScentDecay           float64
 	}
 	Food struct {
-		MaxFood          float64
-		MaxFoodSourceRadius float64
+		MaxFood              float64
+		MaxFoodSourceRadius  float64
+		FoodPerGrab          float64
+		MaxFoodPerFoodSource float64
 	}
 	UI struct {
 		CameraSpeed float64
+	}
+	Reproduction struct {
+		ReproductionRate float64
 	}
 }
 
@@ -87,7 +92,7 @@ func DefaultConfig() WorldConfig {
 	c.Map.NumFoodSources = 10
 	c.Map.NumObstacles = 4
 	c.Map.ObstacleMaxLength = 400
-	c.Map.HomeRadius = 50.0
+	c.Map.HomeRadius = 70.0
 
 	// Ant
 	c.Ant.Length = 30
@@ -97,7 +102,7 @@ func DefaultConfig() WorldConfig {
 	c.Ant.SensorAngle = 0.4
 	c.Ant.SensorDist = 35
 	c.Ant.SensorThreshold = 0.05
-	c.Ant.MovementFoodCost = 0.005
+	c.Ant.MovementFoodCost = 1
 
 	// Pheromone
 	c.Pheromone.Decay = 0.99
@@ -113,6 +118,11 @@ func DefaultConfig() WorldConfig {
 	// Food
 	c.Food.MaxFoodSourceRadius = 40.0
 	c.Food.MaxFood = 100.0
+	c.Food.FoodPerGrab = 20.0
+	c.Food.MaxFoodPerFoodSource = 2000
+
+	// Reproduction
+	c.Reproduction.ReproductionRate = 0.1
 
 	return c
 }

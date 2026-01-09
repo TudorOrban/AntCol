@@ -10,8 +10,6 @@ func generateFoodSources(w *state.World) {
 	foodSources := []shared.FoodSource{}
 
 	for _ = range w.Config.Map.NumFoodSources {
-		radius := rand.Float64() * w.Config.Food.MaxFoodSourceRadius
-
 		posX, posY, distanceToHome := 0.0, 0.0, 0.0
 		minDistanceToHome := 300.0
 
@@ -27,7 +25,8 @@ func generateFoodSources(w *state.World) {
 				X: posX,
 				Y: posY,
 			},
-			Radius: radius,
+			Radius:    rand.Float64() * w.Config.Food.MaxFoodSourceRadius,
+			TotalFood: rand.Float64() * w.Config.Food.MaxFoodPerFoodSource,
 		}
 		foodSources = append(foodSources, foodSource)
 	}

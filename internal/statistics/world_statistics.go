@@ -22,11 +22,14 @@ func RenderStats(screen *ebiten.Image, w *state.World) {
 		avgPerMin = float64(w.FoodCollected) / minutesPassed
 	}
 
-	stats := fmt.Sprintf("Food Collected: %d\nAvg Food/Min: %.2f", w.FoodCollected, avgPerMin)
-	ebitenutil.DebugPrint(screen, stats)
+	totalAnts := fmt.Sprintf("Total Ants: %d\n", len(w.Ants))
+	ebitenutil.DebugPrintAt(screen, totalAnts, 10, 20)
 
-	yOffset := 60
-	ebitenutil.DebugPrintAt(screen, "--- TOP PRODUCERS ---", 10, yOffset)
+	stats := fmt.Sprintf("Food Collected: %d\nAvg Food/Min: %.2f", w.FoodCollected, avgPerMin)
+	ebitenutil.DebugPrintAt(screen, stats, 10, 40)
+
+	yOffset := 80
+	ebitenutil.DebugPrintAt(screen, "Top Producers", 10, yOffset)
 	for i, a := range w.TopAnts {
 		yOffset += 20
 		msg := fmt.Sprintf("Ant #%d: %d food", i, a.GatheredFood)

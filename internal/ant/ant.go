@@ -2,6 +2,7 @@ package ant
 
 import (
 	"ant-sim/internal/shared"
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -38,10 +39,14 @@ func (as AntState) String() string {
 type Ant struct {
 	Position     shared.Position
 	AngleRadians float64 // 0 to 2 * Pi
-	State        AntState
-	Scent        float64 // Max 10
-	GatheredFood int
-	CurrentFood  float64 // Max 100
+
+	State AntState
+	Scent float64 // Max 10
+
+	CurrentFood float64 // Max 100
+	CarriedFood float64
+
+	GatheredFood float64
 }
 
 func (a *Ant) Move(worldWidth, worldHeight float64, obstacles []bool, gridWidth int) {
@@ -129,17 +134,17 @@ func (a *Ant) sense(
 	return -1
 }
 
-func (a *Ant) IsAtFoodSource(foodSources []shared.FoodSource) bool {
-	for _, foodSource := range foodSources {
-		dx := a.Position.X - foodSource.Position.X
-		dy := a.Position.Y - foodSource.Position.Y
+func (a *Ant) GetFoodSourceAt(foodSources []shared.FoodSource) *shared.FoodSource {
+	for i := range foodSources {
+		dx := a.Position.X - foodSources[i].Position.X
+		dy := a.Position.Y - foodSources[i].Position.Y
 		distSq := dx*dx + dy*dy
 
-		if distSq < foodSource.Radius*foodSource.Radius {
-			return true
+		if distSq < foodSources[i].Radius*foodSources[i].Radius {
+			return &foodSources[i]
 		}
 	}
-	return false
+	return nil
 }
 
 func (a *Ant) IsAtHome(homePosition shared.Position, homeRadius float64) bool {
@@ -154,5 +159,9 @@ func (a *Ant) ConsumeEnergy() {
 }
 
 func (a *Ant) IsDead() bool {
-	return a.CurrentFood <= 0
+	isDead := a.CurrentFood <= 0
+	if isDead {
+		fmt.Printf("Is dead %t", isDead)
+	}
+	return isDead
 }

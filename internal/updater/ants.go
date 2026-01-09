@@ -2,9 +2,11 @@ package updater
 
 import (
 	"ant-sim/internal/ant"
+	"ant-sim/internal/shared"
 	"ant-sim/internal/state"
 	"ant-sim/internal/statistics"
 	"math"
+	"math/rand/v2"
 )
 
 func UpdateAnts(w *state.World) {
@@ -28,6 +30,24 @@ func UpdateAnts(w *state.World) {
 	}
 
 	w.Ants = w.Ants[:liveCount]
+
+	ReproduceAnts(w)
+}
+
+func ReproduceAnts(w *state.World) {
+	if rand.Float32() > float32(w.Config.Reproduction.ReproductionRate)*(1/60) {
+		return
+	}
+
+	newAnt := ant.Ant{
+		Position:     w.HomePosition,
+		AngleRadians: rand.Float64() * math.Pi,
+		State:        ant.SearchingForFood,
+		Scent:        w.Config.Pheromone.ScentDecay,
+		GatheredFood: 0,
+		CurrentFood:  w.Config.Food.MaxFood,
+	}
+	w.Ants = append(w.Ants, newAnt)
 }
 
 func moveAnt(w *state.World, currentAnt *ant.Ant) {
@@ -43,24 +63,49 @@ func moveAnt(w *state.World, currentAnt *ant.Ant) {
 }
 
 func actOnDestination(w *state.World, currentAnt *ant.Ant) {
-	if currentAnt.State == ant.SearchingForFood && currentAnt.IsAtFoodSource(w.FoodSources) {
-		actOnFoodArrival(w, currentAnt)
-	} 
+	if currentAnt.State == ant.SearchingForFood {
+		if source := currentAnt.GetFoodSourceAt(w.FoodSources); source != nil && source.TotalFood > 0 {
+			actOnFoodArrival(w, currentAnt, source)
+		}
+	}
 	if currentAnt.State == ant.ReturningHome && currentAnt.IsAtHome(w.HomePosition, w.Config.Map.HomeRadius) {
 		actOnHomeArrival(w, currentAnt)
 	}
 }
 
-func actOnFoodArrival(w *state.World, currentAnt *ant.Ant) {
+func actOnFoodArrival(w *state.World, currentAnt *ant.Ant, source *shared.FoodSource) {
+	// Grab food
+	amountToTake := 0.0
+	if source.TotalFood > w.Config.Food.FoodPerGrab {
+		amountToTake = w.Config.Food.FoodPerGrab
+	} else {
+		amountToTake = source.TotalFood
+	}
+
+	source.TotalFood -= amountToTake
+	currentAnt.CarriedFood = amountToTake
+
+	// Go back home
 	currentAnt.State = ant.ReturningHome
-	currentAnt.AngleRadians += math.Pi // Turn around
+	currentAnt.AngleRadians += math.Pi
 	currentAnt.Scent = w.Config.Pheromone.InitialScentStrength
 }
 
 func actOnHomeArrival(w *state.World, currentAnt *ant.Ant) {
-	currentAnt.State = ant.SearchingForFood
+	// Deposit food
+	w.HomeFoodSupply += currentAnt.CarriedFood
+	currentAnt.CarriedFood = 0
 
-	currentAnt.AngleRadians += math.Pi // Head back out
+	// Eat if necessary
+	if currentAnt.CurrentFood < 30.0 {
+		amountToEat := math.Min(w.HomeFoodSupply, w.Config.Food.MaxFood-currentAnt.CurrentFood)
+		w.HomeFoodSupply -= amountToEat
+		currentAnt.CurrentFood += amountToEat
+	}
+
+	// Head back out
+	currentAnt.State = ant.SearchingForFood
+	currentAnt.AngleRadians += math.Pi
 
 	// Stats
 	currentAnt.GatheredFood++

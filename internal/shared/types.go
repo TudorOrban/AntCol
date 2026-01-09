@@ -9,8 +9,9 @@ type Position struct {
 }
 
 type FoodSource struct {
-	Position Position
-	Radius   float64
+	Position  Position
+	Radius    float64
+	TotalFood float64
 }
 
 type Rectangle struct {
